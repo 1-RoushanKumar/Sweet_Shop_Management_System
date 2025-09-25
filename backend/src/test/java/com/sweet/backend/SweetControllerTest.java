@@ -74,11 +74,15 @@ class SweetControllerTest {
 
     @Test
     @Sql(statements = {
+            "DELETE FROM users WHERE username = 'testuser'", // Added this line
             "INSERT INTO sweet (name, category, price, quantity) VALUES ('Caramel Chew', 'Chewy', 1.50, 50)",
             "INSERT INTO sweet (name, category, price, quantity) VALUES ('Mint Drop', 'Hard Candy', 2.00, 75)",
             "INSERT INTO sweet (name, category, price, quantity) VALUES ('Fudge', 'Chocolate', 5.00, 20)"
     })
-    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = {
+            "DELETE FROM sweet",
+            "DELETE FROM users WHERE username = 'testuser'" // Also added this for post-test cleanup
+    })
     void shouldSearchSweetsByName() throws Exception {
         // Step 1: Register a user to ensure it exists
         UserRegistrationDto userDto = new UserRegistrationDto("testuser", "password123");

@@ -28,4 +28,8 @@ public class SweetService {
     public List<Sweet> getAllSweets() {
         return sweetRepository.findAll();
     }
+
+    public List<Sweet> searchSweets(String name, String category, Double minPrice, Double maxPrice) {
+        return sweetRepository.searchSweets(name, category, minPrice, maxPrice);
+    }
 }
