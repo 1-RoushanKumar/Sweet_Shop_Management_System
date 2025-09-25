@@ -1,6 +1,7 @@
 package com.sweet.backend.service;
 
 import com.sweet.backend.dto.UserRegistrationDto;
+import com.sweet.backend.model.Role;
 import com.sweet.backend.model.User;
 import com.sweet.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class UserService {
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword())); // Consider using a PasswordEncoder
+        user.setRole(Role.USER); // Set a default role for new users
         return userRepository.save(user);
     }
 }
