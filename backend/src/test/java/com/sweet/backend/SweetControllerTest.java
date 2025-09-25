@@ -10,8 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -113,5 +115,41 @@ class SweetControllerTest {
         mockMvc.perform(delete("/api/sweets/1")
                         .with(csrf()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser", roles = {"USER"}) // We will perform the purchase as a regular user
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    void shouldPurchaseSweetWhenInStock() throws Exception {
+        // 1. Arrange: Create a sweet with a quantity greater than 0.
+        // We use .with(user("testadmin").roles("ADMIN")) to temporarily
+        // switch to an ADMIN user to create the sweet, as a regular USER can't.
+        SweetDto sweetDto = new SweetDto("Gummy Bears", "Gummy", 3.00, 10);
+        MvcResult result = mockMvc.perform(post("/api/sweets")
+                        .with(user("testadmin").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sweetDto))
+                        .with(csrf())) // csrf is needed for POST requests
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long sweetId = objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asLong();
+
+        // 2. Act: Perform the purchase request as the original USER
+        // The purchase endpoint is likely a POST, so csrf() is added.
+        mockMvc.perform(post("/api/sweets/" + sweetId + "/purchase")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(9)); // 3. Assert: Verify the quantity decreased by 1
+    }
+
+    @Test
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    @Sql(statements = "INSERT INTO sweet (id, name, category, price, quantity) VALUES (1, 'Gummy Bears', 'Gummy', 3.00, 0)")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    void shouldNotPurchaseSweetWhenOutOfStock() throws Exception {
+        // Act: Attempt to purchase a sweet with a quantity of 0
+        mockMvc.perform(post("/api/sweets/1/purchase")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest()); // Assert that a 400 Bad Request is returned
     }
 }
