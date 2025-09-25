@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // new lambda-based syntax
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/sweets/search").authenticated() // USER & ADMIN can search
+                        .requestMatchers("/api/sweets/**").hasRole("ADMIN")    // Only ADMIN can add/update/delete
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
