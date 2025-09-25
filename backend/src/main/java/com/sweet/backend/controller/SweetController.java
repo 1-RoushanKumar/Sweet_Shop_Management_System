@@ -45,6 +45,7 @@ public class SweetController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sweet> updateSweet(@PathVariable Long id, @RequestBody SweetDto sweetDto) {
         Sweet updatedSweet = sweetService.updateSweet(id, sweetDto);
         return ResponseEntity.ok(updatedSweet);
