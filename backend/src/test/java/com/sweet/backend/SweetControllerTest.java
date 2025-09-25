@@ -138,7 +138,7 @@ class SweetControllerTest {
     }
 
     @Test
-    @Sql(statements = "INSERT INTO sweet (id, name, category, price, quantity) VALUES (1, 'Fudge', 'Chocolate', 5.00, 20)")
+    @Sql(statements = "INSERT INTO sweet (name, category, price, quantity) VALUES ('Fudge', 'Chocolate', 5.00, 20)")
     void shouldUpdateSweetWhenAuthenticated() throws Exception {
         SweetDto updatedSweet = new SweetDto("Deluxe Fudge", "Chocolate", 6.00, 25);
         String token = getAuthToken();

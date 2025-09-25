@@ -3,6 +3,7 @@ package com.sweet.backend.service;
 import com.sweet.backend.dto.SweetDto;
 import com.sweet.backend.model.Sweet;
 import com.sweet.backend.repository.SweetRepository;
+import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,5 +32,17 @@ public class SweetService {
 
     public List<Sweet> searchSweets(String name, String category, Double minPrice, Double maxPrice) {
         return sweetRepository.searchSweets(name, category, minPrice, maxPrice);
+    }
+
+    public Sweet updateSweet(Long id, SweetDto sweetDto) {
+        Sweet existingSweet = sweetRepository.findById(id)
+                .orElseThrow(() -> new ExpressionException("Sweet not found with id: " + id));
+
+        existingSweet.setName(sweetDto.getName());
+        existingSweet.setCategory(sweetDto.getCategory());
+        existingSweet.setPrice(sweetDto.getPrice());
+        existingSweet.setQuantity(sweetDto.getQuantity());
+
+        return sweetRepository.save(existingSweet);
     }
 }

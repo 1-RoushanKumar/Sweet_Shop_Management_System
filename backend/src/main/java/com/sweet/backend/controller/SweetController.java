@@ -42,4 +42,10 @@ public class SweetController {
         List<Sweet> sweets = sweetService.searchSweets(name, category, minPrice, maxPrice);
         return ResponseEntity.ok(sweets);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Sweet> updateSweet(@PathVariable Long id, @RequestBody SweetDto sweetDto) {
+        Sweet updatedSweet = sweetService.updateSweet(id, sweetDto);
+        return ResponseEntity.ok(updatedSweet);
+    }
 }
