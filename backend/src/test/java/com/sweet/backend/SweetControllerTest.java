@@ -152,4 +152,47 @@ class SweetControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest()); // Assert that a 400 Bad Request is returned
     }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    void shouldRestockSweetWhenAdmin() throws Exception {
+        // 1. Arrange: Create a sweet with a low quantity as ADMIN
+        SweetDto sweetDto = new SweetDto("Lollipop", "Hard Candy", 1.00, 5);
+        MvcResult result = mockMvc.perform(post("/api/sweets")
+                        .with(user("testadmin").roles("ADMIN")) // Use a mocked ADMIN to create the sweet
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sweetDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long sweetId = objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asLong();
+
+        // 2. Act: Perform the restock request on the newly created sweet as the same ADMIN
+        mockMvc.perform(post("/api/sweets/" + sweetId + "/restock")
+                        .with(user("testadmin").roles("ADMIN")) // Ensure the request is made as an ADMIN
+                        .with(csrf()))
+                .andExpect(status().isOk()) // 3. Assert: The request should succeed
+                .andExpect(jsonPath("$.quantity").value(6)); // 4. Assert: The quantity should have been incremented
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    void shouldNotRestockSweetWhenUser() throws Exception {
+        // 1. Arrange: Create a sweet that a USER will try to restock
+        SweetDto sweetDto = new SweetDto("Chocolate Bar", "Chocolate", 2.50, 100);
+        MvcResult result = mockMvc.perform(post("/api/sweets")
+                        .with(user("testadmin").roles("ADMIN")) // Create with ADMIN role
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sweetDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long sweetId = objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asLong();
+
+        // 2. Act & Assert: Attempt to restock as a regular USER
+        mockMvc.perform(post("/api/sweets/" + sweetId + "/restock")
+                        .with(user("testuser").roles("USER")) // Use a mocked USER role
+                        .with(csrf()))
+                .andExpect(status().isForbidden()); // The request should be denied with a 403 Forbidden status
+    }
 }
