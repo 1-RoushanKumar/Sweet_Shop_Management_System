@@ -67,4 +67,13 @@ public class SweetService {
         sweet.setQuantity(sweet.getQuantity() - 1);
         return sweetRepository.save(sweet);
     }
+
+    @Transactional
+    public Sweet restockSweet(Long id) {
+        Sweet sweet = sweetRepository.findById(id)
+                .orElseThrow(() -> new SweetNotFoundException("Sweet not found with id: " + id));
+
+        sweet.setQuantity(sweet.getQuantity() + 1);
+        return sweetRepository.save(sweet);
+    }
 }

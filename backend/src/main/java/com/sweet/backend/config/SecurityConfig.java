@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/sweets/*/purchase").hasRole("USER") // USER can purchase
                         .requestMatchers("/api/sweets/search").authenticated() // USER & ADMIN can search
                         .requestMatchers("/api/sweets/**").hasRole("ADMIN")    // Only ADMIN can add/update/delete
+                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/restock").hasRole("ADMIN") // ADD THIS LINE
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

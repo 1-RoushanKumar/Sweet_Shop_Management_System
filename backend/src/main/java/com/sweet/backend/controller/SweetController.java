@@ -63,4 +63,11 @@ public class SweetController {
         Sweet updatedSweet = sweetService.purchaseSweet(id);
         return ResponseEntity.ok(updatedSweet);
     }
+
+    @PostMapping("/{id}/restock")
+    @PreAuthorize("hasRole('ADMIN')") // Changed from hasAuthority('ADMIN')
+    public ResponseEntity<Sweet> restockSweet(@PathVariable Long id) {
+        Sweet updatedSweet = sweetService.restockSweet(id);
+        return ResponseEntity.ok(updatedSweet);
+    }
 }
