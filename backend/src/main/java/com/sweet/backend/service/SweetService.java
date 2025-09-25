@@ -46,4 +46,11 @@ public class SweetService {
 
         return sweetRepository.save(existingSweet);
     }
+
+    public void deleteSweet(Long id) {
+        if (!sweetRepository.existsById(id)) {
+            throw new SweetNotFoundException("Sweet not found with id: " + id);
+        }
+        sweetRepository.deleteById(id);
+    }
 }
