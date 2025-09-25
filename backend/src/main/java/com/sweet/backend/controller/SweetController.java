@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/sweets")
 public class SweetController {
@@ -23,5 +25,11 @@ public class SweetController {
     public ResponseEntity<Sweet> addSweet(@Valid @RequestBody SweetDto sweetDto) {
         Sweet createdSweet = sweetService.createSweet(sweetDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSweet);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Sweet>> getAllSweets() {
+        List<Sweet> sweets = sweetService.getAllSweets();
+        return ResponseEntity.ok(sweets);
     }
 }

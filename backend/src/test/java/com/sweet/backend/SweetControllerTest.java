@@ -14,7 +14,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,5 +70,40 @@ class SweetControllerTest {
                         .content(objectMapper.writeValueAsString(newSweet))
                         .with(csrf())) // CSRF is needed for the POST request
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Sql(statements = {
+            "INSERT INTO sweet (name, category, price, quantity) VALUES ('Caramel Chew', 'Chewy', 1.50, 50)",
+            "INSERT INTO sweet (name, category, price, quantity) VALUES ('Mint Drop', 'Hard Candy', 2.00, 75)",
+            "INSERT INTO sweet (name, category, price, quantity) VALUES ('Fudge', 'Chocolate', 5.00, 20)"
+    })
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, statements = "DELETE FROM sweet")
+    void shouldSearchSweetsByName() throws Exception {
+        // Step 1: Register a user to ensure it exists
+        UserRegistrationDto userDto = new UserRegistrationDto("testuser", "password123");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .with(csrf()))
+                .andExpect(status().isCreated());
+
+        // Step 2: Perform login and capture the token from the response
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\", \"password\":\"password123\"}")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String token = JsonPath.read(loginResult.getResponse().getContentAsString(), "$.token");
+
+        // Step 3: Use the captured token for the search API call
+        mockMvc.perform(get("/api/sweets/search")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .param("name", "Caramel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Caramel Chew"));
     }
 }

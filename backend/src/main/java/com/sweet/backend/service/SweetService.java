@@ -5,6 +5,8 @@ import com.sweet.backend.model.Sweet;
 import com.sweet.backend.repository.SweetRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SweetService {
 
@@ -21,5 +23,9 @@ public class SweetService {
         sweet.setPrice(sweetDto.getPrice());
         sweet.setQuantity(sweetDto.getQuantity());
         return sweetRepository.save(sweet);
+    }
+
+    public List<Sweet> getAllSweets() {
+        return sweetRepository.findAll();
     }
 }
