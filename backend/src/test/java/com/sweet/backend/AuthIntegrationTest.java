@@ -44,4 +44,27 @@ public class AuthIntegrationTest {
                         .with(csrf()))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    void shouldFailWhenUsernameIsTooShort() throws Exception {
+        UserRegistrationDto userDto = new UserRegistrationDto("a", "password123"); // invalid username
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldFailWhenPasswordIsTooShort() throws Exception {
+        UserRegistrationDto userDto = new UserRegistrationDto("validUser", "123"); // invalid password
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
 }
