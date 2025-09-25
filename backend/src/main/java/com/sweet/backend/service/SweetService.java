@@ -1,6 +1,7 @@
 package com.sweet.backend.service;
 
 import com.sweet.backend.dto.SweetDto;
+import com.sweet.backend.exception.SweetNotFoundException;
 import com.sweet.backend.model.Sweet;
 import com.sweet.backend.repository.SweetRepository;
 import org.springframework.expression.ExpressionException;
@@ -36,7 +37,7 @@ public class SweetService {
 
     public Sweet updateSweet(Long id, SweetDto sweetDto) {
         Sweet existingSweet = sweetRepository.findById(id)
-                .orElseThrow(() -> new ExpressionException("Sweet not found with id: " + id));
+                .orElseThrow(() -> new SweetNotFoundException("Sweet not found with id: " + id));
 
         existingSweet.setName(sweetDto.getName());
         existingSweet.setCategory(sweetDto.getCategory());

@@ -32,4 +32,9 @@ public class GlobalExceptionHandler {
         errors.put("error", "Invalid username or password.");
         return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(SweetNotFoundException.class)
+    public ResponseEntity<String> handleSweetNotFound(SweetNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

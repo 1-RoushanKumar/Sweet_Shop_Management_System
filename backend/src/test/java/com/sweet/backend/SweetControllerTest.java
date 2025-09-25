@@ -151,4 +151,16 @@ class SweetControllerTest {
                 .andExpect(jsonPath("$.name").value("Deluxe Fudge"));
     }
 
+    @Test
+    void shouldReturnNotFoundForNonExistentSweetUpdate() throws Exception {
+        SweetDto updatedSweet = new SweetDto("Non-existent Sweet", "Category", 1.00, 1);
+        String token = getAuthToken();
+
+        mockMvc.perform(put("/api/sweets/999")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedSweet)))
+                .andExpect(status().isNotFound());
+    }
+
 }
