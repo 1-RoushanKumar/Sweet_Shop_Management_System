@@ -1,26 +1,24 @@
 package com.sweet.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sweet.backend.dto.AuthResponseDto;
-import com.sweet.backend.dto.LoginRequestDto;
+import com.jayway.jsonpath.JsonPath;
 import com.sweet.backend.dto.SweetDto;
+import com.sweet.backend.dto.UserRegistrationDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 class SweetControllerTest {
 
@@ -30,43 +28,34 @@ class SweetControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @LocalServerPort
-    private int port;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    private String getAuthToken() {
-        LoginRequestDto loginDto = new LoginRequestDto("testuser", "password123");
-        String baseUrl = "http://localhost:" + port;
-        ResponseEntity<AuthResponseDto> response =
-                restTemplate.postForEntity(baseUrl + "/api/auth/login", loginDto, AuthResponseDto.class);
-
-        if (response.getBody() == null) {
-            throw new RuntimeException("Login failed. Check test user exists and password is correct.");
-        }
-        return response.getBody().getToken();
-    }
-
-    @Sql(statements = {
-            "DELETE FROM users WHERE username='testuser'",
-            "INSERT INTO users (username, password) VALUES ('testuser', '" +
-            "$2a$10$Dow1j.2yhv7zQWnJ1U0b5uqx91k7M1e7P9MB6uOkKcm0m3p7vLweW" + "')"
-    })
-    void setupTestUser() {}
-
     @Test
+    @Sql(statements = "DELETE FROM users WHERE username = 'testuser'")
     void shouldAddSweetWhenAuthenticated() throws Exception {
+        // Step 1: Register a user to ensure it exists
+        UserRegistrationDto userDto = new UserRegistrationDto("testuser", "password123");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .with(csrf()))
+                .andExpect(status().isCreated());
+
+        // Step 2: Perform login and capture the token from the response
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\", \"password\":\"password123\"}")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String token = JsonPath.read(loginResult.getResponse().getContentAsString(), "$.token");
+
+        // Step 3: Use the captured token for a protected API call
         SweetDto newSweet = new SweetDto("Chocolate Bar", "Chocolate", 2.50, 100);
-
-        String token = getAuthToken();
-
         mockMvc.perform(post("/api/sweets")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newSweet)))
+                        .content(objectMapper.writeValueAsString(newSweet))
+                        .with(csrf())) // CSRF is needed here as well for POST requests
                 .andExpect(status().isCreated());
     }
 
@@ -76,7 +65,8 @@ class SweetControllerTest {
 
         mockMvc.perform(post("/api/sweets")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newSweet)))
+                        .content(objectMapper.writeValueAsString(newSweet))
+                        .with(csrf())) // CSRF is needed for the POST request
                 .andExpect(status().isForbidden());
     }
 }
