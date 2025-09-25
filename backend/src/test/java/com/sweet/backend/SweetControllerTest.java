@@ -19,6 +19,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -110,4 +111,44 @@ class SweetControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Caramel Chew"));
     }
+
+    // Helper method to get a valid JWT token
+    private String getAuthToken() throws Exception {
+        // Ensure user exists before trying to log in
+        UserRegistrationDto userDto = new UserRegistrationDto("testuser", "password123");
+        try {
+            mockMvc.perform(post("/api/auth/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userDto))
+                            .with(csrf()))
+                    .andExpect(status().isCreated());
+        } catch (Exception e) {
+            // User might already exist, which is fine for the test
+        }
+
+        // Perform login and capture the token
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\", \"password\":\"password123\"}")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return JsonPath.read(loginResult.getResponse().getContentAsString(), "$.token");
+    }
+
+    @Test
+    @Sql(statements = "INSERT INTO sweet (id, name, category, price, quantity) VALUES (1, 'Fudge', 'Chocolate', 5.00, 20)")
+    void shouldUpdateSweetWhenAuthenticated() throws Exception {
+        SweetDto updatedSweet = new SweetDto("Deluxe Fudge", "Chocolate", 6.00, 25);
+        String token = getAuthToken();
+
+        mockMvc.perform(put("/api/sweets/1")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedSweet)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Deluxe Fudge"));
+    }
+
 }
