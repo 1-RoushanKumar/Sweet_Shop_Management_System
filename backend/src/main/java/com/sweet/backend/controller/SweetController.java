@@ -57,4 +57,10 @@ public class SweetController {
         sweetService.deleteSweet(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/purchase")
+    public ResponseEntity<Sweet> purchaseSweet(@PathVariable Long id) {
+        Sweet updatedSweet = sweetService.purchaseSweet(id);
+        return ResponseEntity.ok(updatedSweet);
+    }
 }

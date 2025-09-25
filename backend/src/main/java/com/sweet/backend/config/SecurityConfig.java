@@ -3,6 +3,7 @@ package com.sweet.backend.config;
 import com.sweet.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,6 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // new lambda-based syntax
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/purchase").hasRole("USER") // USER can purchase
                         .requestMatchers("/api/sweets/search").authenticated() // USER & ADMIN can search
                         .requestMatchers("/api/sweets/**").hasRole("ADMIN")    // Only ADMIN can add/update/delete
                         .anyRequest().authenticated()

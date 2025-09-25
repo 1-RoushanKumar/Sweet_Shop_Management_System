@@ -4,6 +4,7 @@ import com.sweet.backend.dto.SweetDto;
 import com.sweet.backend.exception.SweetNotFoundException;
 import com.sweet.backend.model.Sweet;
 import com.sweet.backend.repository.SweetRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 
@@ -52,5 +53,18 @@ public class SweetService {
             throw new SweetNotFoundException("Sweet not found with id: " + id);
         }
         sweetRepository.deleteById(id);
+    }
+
+    @Transactional
+    public Sweet purchaseSweet(Long id) {
+        Sweet sweet = sweetRepository.findById(id)
+                .orElseThrow(() -> new SweetNotFoundException("Sweet not found with id: " + id));
+
+        if (sweet.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Sweet is out of stock.");
+        }
+
+        sweet.setQuantity(sweet.getQuantity() - 1);
+        return sweetRepository.save(sweet);
     }
 }
