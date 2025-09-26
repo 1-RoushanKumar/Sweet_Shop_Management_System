@@ -33,13 +33,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) // ✅ enable CORS
+                .cors(cors -> {
+                })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/purchase").hasRole("USER")
-                        .requestMatchers("/api/sweets/search").authenticated()
-                        .requestMatchers("/api/sweets/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/restock").hasRole("ADMIN")
+
+                        // sweets endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/sweets").permitAll()  // allow everyone to view all sweets
+                        .requestMatchers(HttpMethod.GET, "/api/sweets/search").authenticated() // only logged-in can search
+                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/purchase").hasRole("USER") // USER can purchase
+                        .requestMatchers(HttpMethod.POST, "/api/sweets/*/restock").hasRole("ADMIN") // ADMIN restock
+
+                        // ADMIN operations
+                        .requestMatchers(HttpMethod.POST, "/api/sweets").hasRole("ADMIN")   // add sweet
+                        .requestMatchers(HttpMethod.PUT, "/api/sweets/**").hasRole("ADMIN") // update sweet
+                        .requestMatchers(HttpMethod.DELETE, "/api/sweets/**").hasRole("ADMIN") // delete sweet
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,6 +56,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

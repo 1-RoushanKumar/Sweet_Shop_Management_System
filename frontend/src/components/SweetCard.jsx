@@ -12,8 +12,12 @@ const SweetCard = ({ sweet, onPurchase }) => {
       <div className="p-6">
         <h3 className="text-2xl font-bold text-gray-800 mb-1">{sweet.name}</h3>
         <p className="text-pink-500 text-lg font-semibold mb-3">
-          ${sweet.price.toFixed(2)}
+          {sweet.price.toLocaleString("en-IN", {
+            style: "currency",
+            currency: "INR",
+          })}
         </p>
+
         <div className="text-sm text-gray-600 space-y-1 mb-4">
           <p>
             Category:{" "}
