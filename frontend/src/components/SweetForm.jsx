@@ -74,7 +74,7 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-xl mb-8 border-t-4 border-teal-500">
+    <div className="bg-white p-6 rounded-lg shadow-xl mb-8 border-t-4 border-secondary-teal">
       <h2 className="text-2xl font-bold mb-4 text-teal-700">
         {isEditMode ? "Edit Sweet" : "Add New Sweet"}
       </h2>
@@ -99,7 +99,7 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
             value={formData.name}
             onChange={handleChange}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-teal-500"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-secondary-teal"
           />
         </div>
         {/* Category */}
@@ -113,13 +113,13 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
             value={formData.category}
             onChange={handleChange}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-teal-500"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-secondary-teal"
           />
         </div>
         {/* Price */}
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            Price ($)
+            Price (INR)
           </label>
           <input
             type="number"
@@ -128,7 +128,7 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
             value={formData.price}
             onChange={handleChange}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-teal-500"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-secondary-teal"
           />
         </div>
         {/* Quantity */}
@@ -142,7 +142,7 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
             value={formData.quantity}
             onChange={handleChange}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-teal-500"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:ring-secondary-teal"
           />
         </div>
 
@@ -160,7 +160,7 @@ const SweetForm = ({ currentSweet, onSuccess, onCancel }) => {
           )}
           <button
             type="submit"
-            className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition duration-150"
+            className="bg-secondary-teal hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition duration-150"
             disabled={loading}
           >
             {loading

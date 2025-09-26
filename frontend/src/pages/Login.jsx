@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     try {
       await login(username, password);
-      navigate("/"); // Redirect to homepage on success
+      navigate('/'); // Redirect to homepage on success
     } catch (err) {
       setError(err.message);
     }
@@ -22,19 +22,11 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="p-8 bg-white rounded shadow-md w-full max-w-sm"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center text-pink-600">
-          Login to Sweet Shop 🍭
-        </h2>
+      <form onSubmit={handleSubmit} className="p-8 bg-white rounded shadow-md w-full max-w-sm">
+        <h2 className="text-2xl font-bold mb-6 text-center text-pink-600">Login to Sweet Shop 🍭</h2>
         {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
         <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="username"
-          >
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
             Username
           </label>
           <input
@@ -47,10 +39,7 @@ const Login = () => {
           />
         </div>
         <div className="mb-6">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="password"
-          >
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
             Password
           </label>
           <input
@@ -63,7 +52,7 @@ const Login = () => {
           />
         </div>
         <button
-          className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition duration-150"
+          className="primary-pink hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition duration-150"
           type="submit"
         >
           Sign In

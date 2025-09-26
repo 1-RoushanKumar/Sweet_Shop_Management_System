@@ -10,8 +10,8 @@ const SweetCard = ({ sweet, onPurchase }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden border border-gray-200">
       <div className="p-6">
-        <h3 className="text-2xl font-bold text-gray-800 mb-1">{sweet.name}</h3>
-        <p className="text-pink-500 text-lg font-semibold mb-3">
+        <h3 className="text-2xl font-bold text-dark-gray mb-1">{sweet.name}</h3>
+        <p className="text-primary-pink text-lg font-semibold mb-3">
           {sweet.price.toLocaleString("en-IN", {
             style: "currency",
             currency: "INR",
@@ -21,7 +21,7 @@ const SweetCard = ({ sweet, onPurchase }) => {
         <div className="text-sm text-gray-600 space-y-1 mb-4">
           <p>
             Category:{" "}
-            <span className="font-medium text-gray-700">{sweet.category}</span>
+            <span className="font-medium text-dark-gray">{sweet.category}</span>
           </p>
           <p>
             Stock:{" "}
@@ -41,7 +41,7 @@ const SweetCard = ({ sweet, onPurchase }) => {
           className={`w-full font-bold py-2 px-4 rounded transition duration-150 ${
             purchaseDisabled
               ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-teal-500 hover:bg-teal-600 text-white"
+              : "bg-secondary-teal hover:bg-teal-700 text-white"
           }`}
         >
           {isOutOfStock ? "Sold Out" : user ? "Purchase" : "Login to Purchase"}

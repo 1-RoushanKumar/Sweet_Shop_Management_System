@@ -30,7 +30,7 @@ const Navbar = () => {
               )}
               <button
                 onClick={logout}
-                className="bg-white text-pink-600 hover:bg-pink-100 font-bold py-1 px-3 rounded transition duration-150"
+                className="bg-white text-primary-pink hover:bg-pink-100 font-bold py-1 px-3 rounded transition duration-150"
               >
                 Logout
               </button>
@@ -45,7 +45,7 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/register"
-                className="bg-white text-pink-600 hover:bg-pink-100 font-bold py-1 px-3 rounded transition duration-150"
+                className="bg-white text-primary-pink hover:bg-pink-100 font-bold py-1 px-3 rounded transition duration-150"
               >
                 Register
               </Link>

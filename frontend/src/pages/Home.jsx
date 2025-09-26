@@ -147,7 +147,7 @@ const Home = () => {
         />
         <button
           type="submit"
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded transition duration-150"
+          className="bg-primary-pink hover:bg-pink-600 text-white font-bold py-2 rounded transition duration-150"
         >
           Search
         </button>
