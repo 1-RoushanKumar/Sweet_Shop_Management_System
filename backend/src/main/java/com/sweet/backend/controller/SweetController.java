@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/sweets")
+@CrossOrigin(origins = "*")
 public class SweetController {
 
     private final SweetService sweetService;
